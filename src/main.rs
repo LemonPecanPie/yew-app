@@ -56,11 +56,7 @@ fn App() -> Html {
             <h1>{ "RustConf Explorer" }</h1>
             <div>
                 <h3>{ "Videos to watch" }</h3>
-                for video in &videos {
-                    <p key={video.id}>
-                    {format!{"{}: {}", video.speaker, video.title}}
-                    </p>
-                }
+                <VideosList {videos} />
             </div>
         </>
     }
