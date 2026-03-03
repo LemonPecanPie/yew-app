@@ -1,5 +1,19 @@
 use yew::prelude::*;
 
+#[derive(Properties, PartialEq)]
+struct VideosListProps {
+    videos: Vec<Video>,
+}
+
+#[component]
+fn VideosList(VideosListProps { videos }: &VideosListProps) -> Html {
+    html! {
+        for video in videos {
+            <p key={video.id}>{format!("{}: {}", video.speaker, video.title)}</p>
+        }
+    }
+}
+
 #[derive(Clone, PartialEq)]
 struct Video {
     id: usize,
