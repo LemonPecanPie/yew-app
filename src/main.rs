@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
 // comment added for commit
+// another comment added for commit
 
 #[derive(Properties, PartialEq)]
 struct VideosListProps {
