@@ -16,7 +16,7 @@ struct VideosDetailsProps {
 }
 
 #[component]
-fn VideosDetails(VideosDetailsProps { video }: &VideosDetailsProps) -> Html {
+fn VideoDetails(VideosDetailsProps { video }: &VideosDetailsProps) -> Html {
     html! {
         <div>
         <h3>{ &*video.title }</h3>
@@ -81,13 +81,23 @@ fn App() -> Html {
 
     let selected_video = use_state(|| None);
 
+    let on_video_select = {
+        let selected_video = selected_video.clone();
+        Callback::from(move |video: Video| {
+            selected_video.set(Some(video));
+        })
+    };
+
     html! {
         <>
             <h1>{ "RustConf Explorer" }</h1>
             <div>
                 <h3>{ "Videos to watch" }</h3>
-                <VideosList {videos} />
+                <VideosList {videos} on_click={on_video_select} />
             </div>
+            if let Some(video) = &*selected_video {
+                <VideoDetails video={video.clone()} />
+            }
         </>
     }
 }
