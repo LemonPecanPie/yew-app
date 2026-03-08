@@ -1,4 +1,6 @@
 use yew::prelude::*;
+use serde::Deserialize;
+use gloo_net::http::Request;
 
 // comment added for commit
 // another comment added for commit
@@ -42,7 +44,7 @@ fn VideosList(VideosListProps { videos, on_click }: &VideosListProps) -> Html {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Deserialize)]
 struct Video {
     id: usize,
     title: AttrValue,
@@ -52,32 +54,21 @@ struct Video {
 
 #[component]
 fn App() -> Html {
-    let videos = vec![
-        Video {
-            id: 1,
-            title: "Building and breaking things".into(),
-            speaker: "John Doe".into(),
-            url: "https://youtu.be/PsaFVLr8t4E".into(),
-        },
-        Video {
-            id: 2,
-            title: "The development process".into(),
-            speaker: "Jane Smith".into(),
-            url: "https://youtu.be/PsaFVLr8t4E".into(),
-        },
-        Video {
-            id: 3,
-            title: "The Web 7.0".into(),
-            speaker: "Matt Miller".into(),
-            url: "https://youtu.be/PsaFVLr8t4E".into(),
-        },
-        Video {
-            id: 4,
-            title: "Mouseless development".into(),
-            speaker: "Tom Jerry".into(),
-            url: "https://youtu.be/PsaFVLr8t4E".into(),
-        },
-    ];
+    let videos = use_state(|| vec![]);
+    {
+        let videos = videos.clone();
+        use_effect_with((), move |_| {
+            let videos = videos.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let fetched_videos: Vec<Video> =
+                Request::get("/tutorial/data.json")
+                .send().await.unwrap().json().await.unwrap();
+            videos.set(fetched_videos);
+            });
+            || ()
+        });
+
+    }
 
     let selected_video = use_state(|| None);
 
@@ -93,7 +84,7 @@ fn App() -> Html {
             <h1>{ "RustConf Explorer" }</h1>
             <div>
                 <h3>{ "Videos to watch" }</h3>
-                <VideosList {videos} on_click={on_video_select} />
+                <VideosList videos={(*videos).clone()} on_click={on_video_select} />
             </div>
             if let Some(video) = &*selected_video {
                 <VideoDetails video={video.clone()} />
