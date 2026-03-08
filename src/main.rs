@@ -7,13 +7,37 @@ use yew::prelude::*;
 #[derive(Properties, PartialEq)]
 struct VideosListProps {
     videos: Vec<Video>,
+    on_click: Callback<Video>,
+}
+
+#[derive(Properties, PartialEq)]
+struct VideosDetailsProps {
+    video: Video,
 }
 
 #[component]
-fn VideosList(VideosListProps { videos }: &VideosListProps) -> Html {
+fn VideosDetails(VideosDetailsProps { video }: &VideosDetailsProps) -> Html {
+    html! {
+        <div>
+        <h3>{ &*video.title }</h3>
+        <img src="https://placehold.co/640x360.png?text=Video+Player+Placeholder"
+        alt="video thumbnail" />
+        </div>
+    }
+}
+
+#[component]
+fn VideosList(VideosListProps { videos, on_click }: &VideosListProps) -> Html {
+    let on_select = |video: &Video| {
+        let on_click = on_click.clone();
+        let video = video.clone();
+        Callback::from(move |_| {
+            on_click.emit(video.clone());
+        })
+    };
     html! {
         for video in videos {
-            <p key={video.id}>{format!("{}: {}", video.speaker, video.title)}</p>
+            <p key={video.id} onclick={on_select(video)}>{format!("{}: {}", video.speaker, video.title)}</p>
         }
     }
 }
@@ -54,6 +78,8 @@ fn App() -> Html {
             url: "https://youtu.be/PsaFVLr8t4E".into(),
         },
     ];
+
+    let selected_video = use_state(|| None);
 
     html! {
         <>
